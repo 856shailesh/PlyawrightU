@@ -20,7 +20,7 @@ test('Page playwright test', async ({ page }) => {
   console.log(allTitles);
 });
 
-test.only('UI Controls', async ({ page }) => {
+test('UI Controls', async ({ page }) => {
   await page.goto('https://rahulshettyacademy.com/loginpagePractise/');
   const userName = page.locator('#username');
   const password = page.locator('#password');
