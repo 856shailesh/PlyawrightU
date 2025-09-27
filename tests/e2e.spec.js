@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-test.only('Client end to end', async ({ page }) => {
+test('Client end to end', async ({ page }) => {
   const email = 'shytest@gmail.com';
   const productName = 'ZARA COAT 3';
   const products = page.locator('.card-body');
