@@ -1,37 +1,37 @@
 const { test, expect, request } = require('@playwright/test');
-const LoginPayLoad = {
+const { APIutils } = require('./utils/APIutils');
+const loginPayLoad = {
   userEmail: 'shytest@gmail.com',
   userPassword: 'Test@123',
 };
-let token;
+const orderPayLoad = {
+  orders: [{ country: 'Cuba', productOrderedId: '68a961719320a140fe1ca57c' }],
+};
 
+let response;
 test.beforeAll(async () => {
   const apiContext = await request.newContext();
-  const loginResponse = await apiContext.post(
-    'https://rahulshettyacademy.com/api/ecom/auth/login',
-    {
-      data: LoginPayLoad,
-    }
-  );
-  expect((await loginResponse).ok()).toBeTruthy();
-  const loginResponseJson = await loginResponse.json();
-  token = loginResponseJson.token;
-  console.log('token is ', token);
+  const apiUtils = new APIutils(apiContext, loginPayLoad);
+  response = await apiUtils.createOrder(orderPayLoad);
 });
 
-test.beforeEach(() => {});
-
-test('Client App login', async ({ page }) => {
-  console.log('Actual Test');
-  await page.addInitScript((value) => {
+//Create Order is success
+test('Place the order', async ({ page }) => {
+  page.addInitScript((value) => {
     window.localStorage.setItem('token', value);
-  }, token);
-
-  //new page
+  }, response.token);
   await page.goto('https://rahulshettyacademy.com/client');
-  const products = page.locator('.card-body');
-  await page.waitForLoadState('networkidle');
-  await page.locator('.card-body b').first().waitFor(); // need to wait for element to load even after page loading
-  const count = await products.count();
-  console.log('Count is ', count);
+  await page.locator('button[routerlink*="myorders"]').click();
+  await page.locator('tbody').waitFor();
+  const rows = page.locator('tbody tr');
+  for (let i = 0; i < (await rows.count()); i++) {
+    const rowOrderID = await rows.nth(i).locator('th').textContent();
+    if (response.orderID.includes(rowOrderID)) {
+      await rows.nth(i).locator('button').first().click();
+      break;
+    }
+  }
+  const orderIDDetails = await page.locator('.col-text').textContent();
+  page.pause();
+  expect(response.orderID.includes(orderIDDetails)).toBeTruthy();
 });
