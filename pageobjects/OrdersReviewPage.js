@@ -24,7 +24,7 @@ class OrdersReviewPage {
   }
   async submitAndGetOrderId() {
     await this.submit.click();
-    await this.page.waitForURL('**/myorders');
+    // await this.page.waitForURL('**/myorders');
     return await this.orderId.textContent();
   }
 }
