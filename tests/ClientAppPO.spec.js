@@ -4,38 +4,39 @@ const { POmanager } = require('../pageobjects/POmanager');
 const testData = JSON.parse(
   JSON.stringify(require('../utils/placeorderTestData.json'))
 );
+for (const data of testData) {
+  test(`Client App login for ${data.productName}`, async ({ page }) => {
+    const poManager = new POmanager(page);
+    //   const username = 'shytest@gmail.com';
+    //   const password = 'Test@123';
+    //   const productName = 'ZARA COAT 3';
 
-test('Page playwright test', async ({ page }) => {
-  const poManager = new POmanager(page);
-  //   const username = 'shytest@gmail.com';
-  //   const password = 'Test@123';
-  //   const productName = 'ZARA COAT 3';
+    const loginPage = poManager.getLoginPage();
+    const dashboardPage = poManager.getDashboardPage();
+    // const cartPage = poManager.getCartPage();
+    await loginPage.goTo();
+    await loginPage.validLogin(data.username, data.password);
+    await dashboardPage.searchProductAddCart(data.productName);
+    await dashboardPage.navigateToCart();
 
-  const loginPage = poManager.getLoginPage();
-  const dashboardPage = poManager.getDashboardPage();
-  // const cartPage = poManager.getCartPage();
-  await loginPage.goTo();
-  await loginPage.validLogin(testData.username, testData.password);
-  await dashboardPage.searchProductAddCart(testData.productName);
-  await dashboardPage.navigateToCart();
+    //Cart Page
+    const cartPage = poManager.getCartPage();
+    await cartPage.verifyProductDisplay(data.productName);
+    await cartPage.Checkout();
 
-  //Cart Page
-  const cartPage = poManager.getCartPage();
-  await cartPage.verifyProductDisplay(testData.productName);
-  await cartPage.Checkout();
+    //OrderReview Page
+    //await page.pause();
+    const orderReviewPage = poManager.getOrdersReviewPage();
+    await orderReviewPage.searchCountryAndSelect('ind', 'India');
+    const orderId = await orderReviewPage.submitAndGetOrderId();
+    console.log(orderId);
+    await dashboardPage.navigateToOrders();
+    const ordersHistoryPage = poManager.getOrdersHistoryPage();
+    await ordersHistoryPage.searchOrderAndSelect(orderId);
+    expect(orderId.includes(await ordersHistoryPage.getOrderId())).toBeTruthy();
 
-  //OrderReview Page
-  //await page.pause();
-  const orderReviewPage = poManager.getOrdersReviewPage();
-  await orderReviewPage.searchCountryAndSelect('ind', 'India');
-  const orderId = await orderReviewPage.submitAndGetOrderId();
-  console.log(orderId);
-  await dashboardPage.navigateToOrders();
-  const ordersHistoryPage = poManager.getOrdersHistoryPage();
-  await ordersHistoryPage.searchOrderAndSelect(orderId);
-  expect(orderId.includes(await ordersHistoryPage.getOrderId())).toBeTruthy();
+    //Confirmation Page
 
-  //Confirmation Page
-
-  //My Orders page
-});
+    //My Orders page
+  });
+}
