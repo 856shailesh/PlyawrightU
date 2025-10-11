@@ -15,7 +15,7 @@ test('Popup Validations', async ({ page }) => {
   const frame = page.frameLocator('#courses-iframe');
   await frame.locator('ul.navigation li').nth(1).click();
   console.log('End of Script');
-  await page.pause();
+  //await page.pause();
 });
 
 test('Screenshot & Visual Comparisons', async ({ page }) => {

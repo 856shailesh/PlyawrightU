@@ -1,11 +1,15 @@
 const { test, expect } = require('@playwright/test');
+//const { customtest } = require('../utils/test-base');
+
 const { POmanager } = require('../pageobjects/POmanager');
 //Json > string > js object
 const testData = JSON.parse(
   JSON.stringify(require('../utils/placeorderTestData.json'))
 );
+
+//running via Fixtures
 for (const data of testData) {
-  test(`Client App login for ${data.productName}`, async ({ page }) => {
+  test(`@Web Client App login for ${data.productName}`, async ({ page }) => {
     const poManager = new POmanager(page);
     //   const username = 'shytest@gmail.com';
     //   const password = 'Test@123';
